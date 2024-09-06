@@ -1,20 +1,49 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import * as Font from 'expo-font'
+import {StyleSheet} from 'react-native';
+
+
+//telas
+import CampanhaMain from './src/campanha/index';
+import CriarCampanha from './src//campanha/criarCampanha';
+//estoque
+
+
+
+const Stack = createNativeStackNavigator();
+
+
+
 
 export default function App() {
+
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadFonts = async () => {
+      await Font.loadAsync({
+        'Poppins-Regular': require('./assets/fonts/Poppins-Regular.ttf'),
+        'Poppins-Medium': require('./assets/fonts/Poppins-Medium.ttf'),
+        'Poppins-SemiBold': require('./assets/fonts/Poppins-SemiBold.ttf'),
+        'DM-Sans': require('./assets/fonts/DMSans-VariableFont_opsz,wght.ttf'),
+      });
+      setFontsLoaded(true);
+    };
+  
+    loadFonts();
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen  name="CampanhaMain" component={CampanhaMain} />
+        <Stack.Screen  name="CriarCampanha" component={CriarCampanha}/>
+
+      </Stack.Navigator>
+    </NavigationContainer>
+
+
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
