@@ -64,7 +64,7 @@ const CampanhaMain = () => {
                     <View key={item.id} style={styles.campanhasContainer}>
                         <Image source={{ uri: item.imagem }} />
                         <Text style={styles.campanhaTitle}>{item.titulo}</Text>
-                        <Text style={styles.campanhaDesc} numberOfLines={2}>{item.descricao}</Text>
+                        <Text style={styles.campanhaDesc} numberOfLines={4}>{item.descricao}</Text>
                         <Text style={styles.campanhaMais}>Continue lendo...</Text>
                     </View>
                 ))}
@@ -81,7 +81,7 @@ const CampanhaMain = () => {
                 ]}
                 onPress={onPress}
             >
-                <Text>{filtro}</Text>
+                <Text style={styles.txtFiltroBt}>{filtro}</Text>
             </TouchableOpacity>
         );
     };
@@ -108,7 +108,7 @@ const CampanhaMain = () => {
                             arrowicon={<FontAwesome name="chevron-down" size={12} color={'black'} />}
                             search={false}
                             placeholder='Tipo sanguíneo'
-                            inputStyles={{ fontSize: 10 }}
+                            inputStyles={{ fontSize: 12 }}
                             boxStyles={styles.boxStyles}
                             dropdownItemStyles={styles.dropdownItemStyles}
                             dropdownStyles={styles.dropdownStyles}
@@ -233,17 +233,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flexShrink: 1,
         maxHeight: 40,
-        padding: 10
+        padding: 10,
     },
     filtroSelecionado: {
         backgroundColor: '#F2DADA',
     },
-    filtroButtonInativo: {
-        backgroundColor: '#DAEEF2',
-    },
     txtFiltroBt: {
-        fontSize: 10,
-        textAlign: 'center'
+        fontSize: 11,
+        textAlign: 'center',
     },
     filtroContainer: {
         flexDirection: 'row',
@@ -266,7 +263,7 @@ const styles = StyleSheet.create({
     },
     campanhaDesc: {
         fontSize: 13,
-        marginBottom: 10,
+        marginBottom: 30,
     },
     campanhaMais: {
         fontSize: 11,
