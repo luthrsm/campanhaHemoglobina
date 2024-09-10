@@ -32,34 +32,20 @@ const CriarCampanha = () => {
         { key: "8", value: "O-" },
     ];
 
-    const imagens = [
-        { id: 1, uri: require('../../assets/img/Rectangle 79.png') },
-        { id: 2, uri: require('../../assets/img/Rectangle 80.png') },
-        { id: 3, uri: require('../../assets/img/Rectangle 81.png') },
-    ];
-
-    //const [imagemSelecionada, setImagemSelecionada] = useState(null);
-
-    const handleSelecionarImagem = (imagem) => {
-        setImagemSelecionada(imagem);
-    };
-
     //mudar a cor do filtro
     const [filtro1Selecionado, setFiltro1Selecionado] = useState(false);
     const [filtro2Selecionado, setFiltro2Selecionado] = useState(false);
-    //filtrar por tipo de doação
-    const [tipoDoacao, setTipoDoacao] = useState('');
-    const [campanhas, setCampanhas] = useState([]);
+    const [filtroSelecionado, setFiltroSelecionado] = useState('')
 
     const handleFiltroPress = (filtro) => {
         if (filtro === 'filtro1') {
-            setTipoDoacao('Doação de reposição');
             setFiltro1Selecionado(true);
             setFiltro2Selecionado(false);
+            setFiltroSelecionado('Doação de reposição'); // Add this line
         } else if (filtro === 'filtro2') {
-            setTipoDoacao('Doação voluntária');
             setFiltro2Selecionado(true);
             setFiltro1Selecionado(false);
+            setFiltroSelecionado('Doação voluntária'); // Add this line
         }
     };
 
@@ -77,25 +63,6 @@ const CriarCampanha = () => {
         );
     };
 
-    const filtrarCampanhas = () => {
-        if (tipoDoacao === 'Doação de reposição') {
-            return campanhas.filter((campanha) => campanha.tipoDoacao === 'Doação de reposição');
-        } else if (tipoDoacao === 'Doação voluntária') {
-            return campanhas.filter((campanha) => campanha.tipoDoacao === 'Doação voluntária');
-        } else {
-            return campanhas;
-        }
-    };
-
-    useEffect(() => {
-        const campanhasFiltradas = filtrarCampanhas();
-        setCampanhas(campanhasFiltradas);
-    }, [tipoDoacao]);
-
-
-
-
-    //const imagemUriTexto = imagemSelecionada.toString();
 
     // Função para criar campanha no Supabase
     const handleSubmit = async () => {
@@ -108,6 +75,7 @@ const CriarCampanha = () => {
                         descricao: campaignDescription,
                         tipoSanguineo: selectedCategory,
                         local: local,
+                        tipoDoacao: filtroSelecionado,
                         //imagem: imagemUriTexto.uri, 
                     }
                 ]);
@@ -115,7 +83,7 @@ const CriarCampanha = () => {
             if (error) {
                 console.error('Erro ao criar campanha:', error);
             } else {
-                console.log('Campanha criada com sucesso:', data);
+                console.log('Campanha criada com sucesso');
                 navigation.navigate('CampanhaMain')
             }
         } catch (error) {
@@ -141,7 +109,7 @@ const CriarCampanha = () => {
                         <Text style={styles.titleModal}>Qual a diferença entre doação de reposição e doação voluntária?</Text>
                         <Text style={styles.txtModal}> in ullamcorper tincidunt enim turpis dictum tristique quis vulputate elit non arcu blandit at iaculis convallis convallis eu nec ipsum fusce enim dui feugiat maecenas egestas sagittis nibh amet nunc enim tortor pellentesque orci risus egestas nunc enim, enim elementum neque nam scelerisque feugiat vitae ipsum vel tempus, est, tristique leo dignissim elementum aliquam amet aliquam sed turpis accumsan placerat arcu, bibendum curabitur pharetra, risus tincidunt cras aliquet rutrum magna vestibulum at tortor, sit consectetur facilisis volutpat dictum augue enim sapien, tristique eget lacus at odio nibh pellentesque felis ultrices semper nunc sit ac ut nisl, nibh turpis posuere dignissim</Text>
                         <View style={{ flexDirection: 'row', gap: 30, justifyContent: 'center' }}>
-                            <TouchableOpacity style={styles.btModal}>
+                            <TouchableOpacity style={styles.btModal} onPress={() => setModalVisible(false)}>
                                 <Text style={styles.txtBtModal}>Entendi</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.btModal}>
@@ -192,6 +160,7 @@ const CriarCampanha = () => {
                                 arrowicon={<FontAwesome name="chevron-down" size={12} color={'black'} />}
                                 search={false}
                                 placeholder='Escolha um tipo sanguíneo'
+
                                 boxStyles={styles.boxStyles}
                                 dropdownItemStyles={styles.dropdownItemStyles}
                                 dropdownStyles={styles.dropdownStyles}
@@ -206,19 +175,31 @@ const CriarCampanha = () => {
                                 style={styles.input}
                             />
                             <Text style={styles.txtInput}>Motivo da campanha</Text>
-                            <TextInput
-                                value={campaignDescription}
-                                onChangeText={(text) => {
-                                    if (text.length <= 200) { // adjust the limit to your desired value
-                                        setCampaignDescription(text);
-                                    }
-                                }}
-                                placeholder="Digite aqui a descrição da campanha..."
-                                multiline={true}
-                                numberOfLines={10}
-                                maxLength={1000}
-                                style={styles.TextAreainput}
-                            />
+                            <View>
+                                <TextInput
+                                    value={campaignDescription}
+                                    onChangeText={(text) => {
+                                        if (text.length <= 1000) { // adjust the limit to your desired value
+                                            setCampaignDescription(text);
+                                        }
+                                    }}
+                                    placeholder="Digite aqui a descrição da campanha..."
+                                    multiline={true}
+                                    numberOfLines={10}
+                                    maxLength={1000}
+                                    style={styles.TextAreainput}
+                                />
+                                <View style={{
+                                    position: 'absolute',
+                                    bottom: 10,
+                                    right: 20,
+                                    fontSize: 12,
+
+                                }}>
+                                    <Text style={{ color: '#696969', }}>{`Caracteres restantes: ${1000 - campaignDescription.length}`}</Text>
+                                </View>
+                            </View>
+
                             <TouchableOpacity style={{ flexDirection: 'row', gap: 10, alignItems: 'center', }} onPress={handlePress}>
                                 <Text style={styles.txtInput}>
                                     Tipo de doação
@@ -237,14 +218,6 @@ const CriarCampanha = () => {
                                     selecionado={filtro2Selecionado}
                                     onPress={() => handleFiltroPress('filtro2')}
                                 />
-                            </View>
-                            <Text style={styles.txtInput}>Selecione uma imagem:</Text>
-                            <View style={{ flexDirection: 'row', gap: 35 }}>
-                                {imagens.map((imagem) => (
-                                    <TouchableOpacity key={imagem.id} onPress={() => handleSelecionarImagem(imagem)}>
-                                        <Image source={imagem.uri} />
-                                    </TouchableOpacity>
-                                ))}
                             </View>
 
                             <TouchableOpacity onPress={handleSubmit} style={styles.submitButton}>

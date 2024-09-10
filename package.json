@@ -15,9 +15,11 @@
     "@supabase/supabase-js": "^2.45.3",
     "expo": "~51.0.28",
     "expo-status-bar": "~1.12.1",
+    "install": "^0.13.0",
     "react": "18.2.0",
     "react-native": "0.74.5",
-    "react-native-dropdown-select-list": "^2.0.5"
+    "react-native-dropdown-select-list": "^2.0.5",
+    "react-native-share": "^11.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

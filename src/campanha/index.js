@@ -8,11 +8,26 @@ import { useState, useEffect } from 'react';
 import supabase from '../../supabaseClient';
 
 
+
 import MenuDoador from '../../components/menuDoador';
+
 
 const CampanhaMain = () => {
     const navigation = useNavigation();
 
+    const agulhaImage = require('./../../assets/img/agulha.jpg');
+    const coracaoDoacaoImage = require('./../../assets/img/coracaoDoacao.jpg');
+    const sangueImage = require('./../../assets/img/sangue.jpg');
+
+    // Estados para armazenar tipo de doação, tipo sanguíneo e seleção de filtros
+    const [tipoDoacao, setTipoDoacao] = useState('');
+    const [filtro1Selecionado, setFiltro1Selecionado] = useState(false);
+    const [filtro2Selecionado, setFiltro2Selecionado] = useState(false);
+    const [tipoSanguineoSelecionado, setTipoSanguineoSelecionado] = useState('');
+    const [selectedTipoKey, setSelectedTipoKey] = useState(''); // Para armazenar a key selecionada
+    const [campaigns, setCampaigns] = useState([]);
+
+    // Dados para a lista de tipos sanguíneos
     const tipos = [
         { key: "1", value: "A+" },
         { key: "2", value: "A-" },
@@ -22,52 +37,109 @@ const CampanhaMain = () => {
         { key: "6", value: "AB-" },
         { key: "7", value: "O+" },
         { key: "8", value: "O-" },
+        { key: "9", value: "Todos" }, // Adiciona a opção "Todos"
     ];
 
-    //mudar a cor do filtro
-    const [filtro1Selecionado, setFiltro1Selecionado] = useState(false);
-    const [filtro2Selecionado, setFiltro2Selecionado] = useState(false);
-
+    // Função para lidar com clique nos filtros de tipo de doação
     const handleFiltroPress = (filtro) => {
         if (filtro === 'filtro1') {
-            setFiltro1Selecionado(!filtro1Selecionado);
-            setFiltro2Selecionado(false);
+            if (filtro1Selecionado) {
+                setFiltro1Selecionado(false);
+                setTipoDoacao(''); // Limpa o filtro de doação
+            } else {
+                setFiltro1Selecionado(true);
+                setFiltro2Selecionado(false);
+                setTipoDoacao('Doação de reposição');
+            }
         } else if (filtro === 'filtro2') {
-            setFiltro2Selecionado(!filtro2Selecionado);
-            setFiltro1Selecionado(false);
+            if (filtro2Selecionado) {
+                setFiltro2Selecionado(false);
+                setTipoDoacao(''); // Limpa o filtro de doação
+            } else {
+                setFiltro2Selecionado(true);
+                setFiltro1Selecionado(false);
+                setTipoDoacao('Doação voluntária');
+            }
         }
     };
 
-    const [campaigns, setCampaigns] = useState([]);
+    // Função para buscar campanhas do Supabase
+    const fetchCampaigns = async () => {
+        let query = supabase.from('campanhas').select('*');
 
-    // Buscar campanhas no Supabase
+        // Se um tipo de doação estiver selecionado, adiciona filtro para o tipo de doação
+        if (tipoDoacao) {
+            query = query.eq('tipoDoacao', tipoDoacao);
+        }
+
+        // Se "Todos" não estiver selecionado, aplica filtro de tipo sanguíneo
+        if (tipoSanguineoSelecionado && tipoSanguineoSelecionado !== 'Todos') {
+            query = query.eq('tipoSanguineo', tipoSanguineoSelecionado); // Certifique-se de que 'tipoSanguineo' exista no Supabase
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+            console.error('Error fetching campaigns:', error);
+        } else {
+            setCampaigns(data);
+        }
+    };
+
+    // Atualiza as campanhas sempre que o tipoDoacao ou tipoSanguineoSelecionado muda
     useEffect(() => {
-        const fetchCampaigns = async () => {
-            const { data, error } = await supabase
-                .from('campanhas')
-                .select('*');
-
-            if (error) {
-                console.error('Error fetching campaigns:', error);
-            } else {
-                setCampaigns(data);
-            }
-        };
-
         fetchCampaigns();
-    }, [campaigns]); // <--- add campaigns as a dependency
+    }, [tipoDoacao, tipoSanguineoSelecionado]);
+
+
+
+    const imagens = [
+        { id: 1, uri: agulhaImage },
+        { id: 2, uri: coracaoDoacaoImage },
+        { id: 3, uri: sangueImage },
+    ];
+
 
     const CampanhaList = () => {
         return (
             <View style={styles.listaCampanhasContainer}>
-                {campaigns.map((item) => (
-                    <View key={item.id} style={styles.campanhasContainer}>
-                        <Image source={{ uri: item.imagem }} />
-                        <Text style={styles.campanhaTitle}>{item.titulo}</Text>
-                        <Text style={styles.campanhaDesc} numberOfLines={4}>{item.descricao}</Text>
-                        <Text style={styles.campanhaMais}>Continue lendo...</Text>
-                    </View>
-                ))}
+                {campaigns.map((item) => {
+                    const randomImageIndex = Math.floor(Math.random() * imagens.length);
+                    const randomImage = imagens[randomImageIndex];
+                    return (
+                        <View key={item.id} style={styles.campanhasContainer}>
+                            <Text style={styles.campanhaTitle}>{item.titulo}</Text>
+                            <View style={styles.detailsContainer}>
+                                <View style={styles.infoTagTipo}>
+                                    <Text style={styles.infoText}>{item.tipoDoacao}</Text>
+                                </View>
+                                <View style={styles.infoTag}>
+                                    <Text style={styles.infoText}>{item.tipoSanguineo}</Text>
+                                </View>
+                                <Text style={styles.locationText}>{item.local}</Text>
+                            </View>
+                            <Text style={styles.campanhaDesc} numberOfLines={4}>{item.descricao}</Text>
+                            <Image source={randomImage.uri} style={styles.image} />
+                            <View style={styles.shareContainer}>
+                                <Text style={styles.shareText}>Compartilhe:</Text>
+
+                                <TouchableOpacity >
+                                    <FontAwesome name="share-alt" size={20} color="#005555" style={styles.icon} />
+                                </TouchableOpacity>
+
+                                <TouchableOpacity >
+                                    <FontAwesome name="instagram" size={20} color="#005555" style={styles.icon} />
+                                </TouchableOpacity>
+
+                                <TouchableOpacity >
+                                    <FontAwesome name="facebook" size={20} color="#005555" style={styles.icon} />
+                                </TouchableOpacity>
+                            </View>
+
+
+                        </View>
+                    );
+                })}
             </View>
         );
     };
@@ -85,6 +157,8 @@ const CampanhaMain = () => {
             </TouchableOpacity>
         );
     };
+
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -112,6 +186,12 @@ const CampanhaMain = () => {
                             boxStyles={styles.boxStyles}
                             dropdownItemStyles={styles.dropdownItemStyles}
                             dropdownStyles={styles.dropdownStyles}
+                            setSelected={(val) => {
+                                const selectedValue = tipos.find(tipo => tipo.key === val)?.value || '';
+                                setSelectedTipoKey(val); // Atualiza a chave selecionada
+                                setTipoSanguineoSelecionado(selectedValue); // Atualiza o tipo sanguíneo selecionado
+                            }}
+                            selected={selectedTipoKey} // Para manter o valor selecionado
                         />
                         <FiltroButton
                             filtro="Doação de reposição"
@@ -248,7 +328,6 @@ const styles = StyleSheet.create({
     },
     campanhasContainer: {
         width: '100%',
-        height: 175,
         backgroundColor: '#DAEEF2',
         top: 24,
         padding: 26,
@@ -289,5 +368,37 @@ const styles = StyleSheet.create({
     ScrollView: {
         paddingBottom: 20,
         flexGrow: 1,
-    }
+    },
+    image: {
+        width: 300,
+        height: 150,
+        borderRadius: 15,
+    },
+    detailsContainer: {
+        flexDirection: 'row',
+        gap: 10,
+        marginBottom: 10,
+        alignItems: 'center'
+    },
+    shareContainer:{
+        flexDirection: 'row',
+        gap: 10,
+        marginTop: 20
+    },
+    infoTag:{
+        backgroundColor: '#F2DADA',
+        height: 25,
+        width: 28,
+        borderRadius: 5,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    infoTagTipo:{
+        backgroundColor: '#F2DADA',
+        height: 25,
+        width: 120,
+        borderRadius: 5, 
+        justifyContent: 'center', 
+        alignItems: 'center',
+    },
 })
