@@ -287,7 +287,7 @@ const CampanhaMain = () => {
 
                 </View>
             </View>
-            <MenuDoador />
+            
         </SafeAreaView>
     )
 

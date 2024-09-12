@@ -228,7 +228,6 @@ const CriarCampanha = () => {
 
                 </View>
             </View>
-            <MenuDoador />
         </SafeAreaView>
     );
 };
