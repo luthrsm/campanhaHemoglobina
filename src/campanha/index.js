@@ -1,4 +1,4 @@
-import { Text, SafeAreaView, View, StyleSheet, Image, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { Text, SafeAreaView, View, StyleSheet, Image, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useNavigation } from '@react-navigation/native'
@@ -99,6 +99,63 @@ const CampanhaMain = () => {
         { id: 3, uri: sangueImage },
     ];
 
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedCampaign, setSelectedCampaign] = useState(null);
+
+    const handleCampaignPress = (campaign) => {
+        setSelectedCampaign(campaign); // Define a campanha selecionada
+        setModalVisible(true); // Abre o modal
+    };
+
+    const handleCloseModal = () => {
+        setModalVisible(false); // Fecha o modal
+        setSelectedCampaign(null); // Limpa a campanha selecionada
+    };
+
+    const CampanhasDetalhes = ({ campaign, onClose }) => {
+        if (!campaign) return null; // Certifica-se de que existe uma campanha selecionada
+
+        const randomImageIndex = Math.floor(Math.random() * imagens.length);
+        const randomImage = imagens[randomImageIndex];
+
+        return (
+            <SafeAreaView style={styles.CampanhaDetalhesContainer}>
+                <View style={styles.voltarContainer}>
+                    <TouchableOpacity onPress={onClose}>
+                        <AntDesign name="arrowleft" size={28} color="#326771" />
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.campanhaDetalhes}>
+
+                    <Text style={styles.campanhaTitle}>{campaign.titulo}</Text>
+                    <View style={[styles.detailsContainer,  { width: '40%', marginTop: 10}]}>
+
+                        <View style={styles.infoTagTipo}>
+                            <Text style={styles.infoText}>{campaign.tipoDoacao}</Text>
+                        </View >
+                        <View style={styles.infoTag}>
+                            <Text style={styles.infoText}>{campaign.tipoSanguineo}</Text>
+                        </View>
+                        <Text style={styles.infoText}>{campaign.local}</Text>
+                    </View>
+                    <Text style={[styles.campanhaDesc, {textAlign: 'justify', marginTop: 20}]}>{campaign.descricao}</Text>
+                    <Image source={randomImage.uri} style={styles.image} />
+                    <View style={styles.shareContainer}>
+                        <Text style={styles.shareText}>Compartilhe:</Text>
+                        <TouchableOpacity>
+                            <FontAwesome name="share-alt" size={16} color="#005555" style={styles.icon} />
+                        </TouchableOpacity>
+                        <TouchableOpacity>
+                            <FontAwesome name="instagram" size={16} color="#005555" style={styles.icon} />
+                        </TouchableOpacity>
+                        <TouchableOpacity>
+                            <FontAwesome name="facebook" size={16} color="#005555" style={styles.icon} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </SafeAreaView>
+        );
+    };
 
     const CampanhaList = () => {
         return (
@@ -107,42 +164,46 @@ const CampanhaMain = () => {
                     const randomImageIndex = Math.floor(Math.random() * imagens.length);
                     const randomImage = imagens[randomImageIndex];
                     return (
-                        <View key={item.id} style={styles.campanhasContainer}>
-                            <Text style={styles.campanhaTitle}>{item.titulo}</Text>
-                            <View style={styles.detailsContainer}>
-                                <View style={styles.infoTagTipo}>
-                                    <Text style={styles.infoText}>{item.tipoDoacao}</Text>
+                        <TouchableOpacity onPress={() => handleCampaignPress(item)} key={item.id}>
+                            <View style={styles.campanhasContainer}>
+                                <Text style={styles.campanhaTitle}>{item.titulo}</Text>
+                                <View style={styles.detailsContainer}>
+                                    <View style={styles.infoTagTipo}>
+                                        <Text style={styles.infoText}>{item.tipoDoacao}</Text>
+                                    </View>
+                                    <View style={styles.infoTag}>
+                                        <Text style={styles.infoText}>{item.tipoSanguineo}</Text>
+                                    </View>
+                                    <Text style={styles.infoText}>{item.local}</Text>
                                 </View>
-                                <View style={styles.infoTag}>
-                                    <Text style={styles.infoText}>{item.tipoSanguineo}</Text>
+                                <Text style={styles.campanhaDesc} numberOfLines={4}>{item.descricao}</Text>
+                                <Text style={styles.campanhaMais}>Ler mais...</Text>
+                                <Image source={randomImage.uri} style={styles.image} />
+                                <View style={styles.shareContainer}>
+                                    <Text style={styles.shareText}>Compartilhe:</Text>
+
+                                    <TouchableOpacity >
+                                        <FontAwesome name="share-alt" size={16} color="#005555" style={styles.icon} />
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity >
+                                        <FontAwesome name="instagram" size={16} color="#005555" style={styles.icon} />
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity >
+                                        <FontAwesome name="facebook" size={16} color="#005555" style={styles.icon} />
+                                    </TouchableOpacity>
                                 </View>
-                                <Text style={styles.locationText}>{item.local}</Text>
                             </View>
-                            <Text style={styles.campanhaDesc} numberOfLines={4}>{item.descricao}</Text>
-                            <Image source={randomImage.uri} style={styles.image} />
-                            <View style={styles.shareContainer}>
-                                <Text style={styles.shareText}>Compartilhe:</Text>
-
-                                <TouchableOpacity >
-                                    <FontAwesome name="share-alt" size={20} color="#005555" style={styles.icon} />
-                                </TouchableOpacity>
-
-                                <TouchableOpacity >
-                                    <FontAwesome name="instagram" size={20} color="#005555" style={styles.icon} />
-                                </TouchableOpacity>
-
-                                <TouchableOpacity >
-                                    <FontAwesome name="facebook" size={20} color="#005555" style={styles.icon} />
-                                </TouchableOpacity>
-                            </View>
-
-
-                        </View>
+                        </TouchableOpacity>
                     );
                 })}
+
             </View>
         );
     };
+
+
 
     const FiltroButton = ({ filtro, selecionado, onPress }) => {
         return (
@@ -205,8 +266,18 @@ const CampanhaMain = () => {
                         />
                     </View>
                     <ScrollView style={styles.ScrollView} contentContainerStyle={{ paddingVertical: 20 }}>
-                        <CampanhaList />
+                        <CampanhaList handleCampaignPress={handleCampaignPress} />
                     </ScrollView>
+                    <Modal
+                        animationType="slide"
+                        visible={modalVisible}
+                        onRequestClose={handleCloseModal}
+                    >
+                        <CampanhasDetalhes campaign={selectedCampaign} onClose={handleCloseModal} />
+                    </Modal>
+
+
+
 
                     <View style={styles.campanhaCriar}>
                         <TouchableOpacity style={styles.criarBt} onPress={() => navigation.navigate('CriarCampanha')}>
@@ -339,14 +410,19 @@ const styles = StyleSheet.create({
     campanhaTitle: {
         fontSize: 23,
         marginBottom: 10,
+        fontFamily: 'DM-Sans'
+
     },
     campanhaDesc: {
         fontSize: 13,
         marginBottom: 30,
+        fontFamily: 'DM-Sans'
+
     },
     campanhaMais: {
         fontSize: 11,
-        color: '#1e6370'
+        color: '#1e6370',
+        marginBottom: 10
     },
     campanhaCriar: {
         position: 'absolute',
@@ -380,12 +456,13 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         alignItems: 'center'
     },
-    shareContainer:{
+    shareContainer: {
         flexDirection: 'row',
         gap: 10,
-        marginTop: 20
+        marginTop: 20,
+        alignItems: 'center'
     },
-    infoTag:{
+    infoTag: {
         backgroundColor: '#F2DADA',
         height: 25,
         width: 28,
@@ -393,12 +470,32 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
-    infoTagTipo:{
+    infoTagTipo: {
         backgroundColor: '#F2DADA',
         height: 25,
-        width: 120,
-        borderRadius: 5, 
-        justifyContent: 'center', 
+        width: 130,
+        borderRadius: 5,
+        justifyContent: 'center',
         alignItems: 'center',
     },
+    infoText: {
+        fontSize: 12,
+        fontFamily: 'DM-Sans'
+    },
+    shareText: {
+        fontFamily: 'DM-Sans',
+        fontSize: 13,
+    },
+
+    //modal
+    CampanhaDetalhesContainer: {
+        justifyContent: 'center',
+        flex: 1,
+        height: '100%',
+    },
+    campanhaDetalhes: {
+        marginLeft: 50,
+        marginTop: -150,
+        marginRight: 50,
+    }
 })

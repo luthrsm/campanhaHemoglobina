@@ -7,7 +7,9 @@ import {StyleSheet} from 'react-native';
 
 //telas
 import CampanhaMain from './src/campanha/index';
-import CriarCampanha from './src//campanha/criarCampanha';
+import CriarCampanha from './src/campanha/criarCampanha';
+import CampaignDetails from './src/campanha/index'
+
 //estoque
 
 
@@ -40,6 +42,10 @@ export default function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen  name="CampanhaMain" component={CampanhaMain} />
         <Stack.Screen  name="CriarCampanha" component={CriarCampanha}/>
+        <Stack.Screen  name="CampaignDetails" component={CampaignDetails}/>
+
+
+
 
       </Stack.Navigator>
     </NavigationContainer>
